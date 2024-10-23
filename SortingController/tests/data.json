@@ -1,0 +1,154 @@
+{
+    "listing_id": "6a09f4e68237",
+    "bounding_box": {
+        "left": 233.8315887451172,
+        "upper": 310.75927734375,
+        "right": 655.9450073242188,
+        "lower": 517.6983642578125,
+        "image_width": 1024.0,
+        "image_height": 768.0,
+        "score": 0.7146146893501282
+    },
+    "items": [
+        {
+            "id": "3738",
+            "name": "Technic, Plate 2 x 8 with 7 Holes",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/3738/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=3738"
+                }
+            ],
+            "category": "Technic, Plate",
+            "type": "part",
+            "score": 0.9798129796981812
+        },
+        {
+            "id": "31036c01",
+            "name": "Duplo, Toolo Brick 2 x 8 with 2 Screws (positions 1 and 5)",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/31036c01/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=31036c01"
+                }
+            ],
+            "category": "DUPLO, Toolo",
+            "type": "part",
+            "score": 0.7210516333580017
+        },
+        {
+            "id": "3034",
+            "name": "Plate 2 x 8",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/3034/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=3034"
+                }
+            ],
+            "category": "Plate",
+            "type": "part",
+            "score": 0.714505136013031
+        },
+        {
+            "id": "2291",
+            "name": "Duplo, Brick 2 x 10",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/2291/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=2291"
+                }
+            ],
+            "category": "DUPLO, Brick",
+            "type": "part",
+            "score": 0.6424384117126465
+        },
+        {
+            "id": "x1214",
+            "name": "Brick 2 x 8 with Center Hole",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/x1214/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=x1214"
+                }
+            ],
+            "category": "Brick",
+            "type": "part",
+            "score": 0.632887601852417
+        },
+        {
+            "id": "44524",
+            "name": "Duplo, Plate 2 x 8",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/44524/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=44524"
+                }
+            ],
+            "category": "DUPLO, Plate",
+            "type": "part",
+            "score": 0.62175053358078
+        },
+        {
+            "id": "3007miA",
+            "name": "Minitalia Brick 2 x 8 with Bottom X Supports",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/3007miA/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=3007miA"
+                }
+            ],
+            "category": "Minitalia",
+            "type": "part",
+            "score": 0.6192514896392822
+        },
+        {
+            "id": "30400",
+            "name": "Brick 4 x 18",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/30400/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=30400"
+                }
+            ],
+            "category": "Brick",
+            "type": "part",
+            "score": 0.6139896512031555
+        },
+        {
+            "id": "4758",
+            "name": "Electric Plate 2 x 8 with Contacts",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/4758/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=4758"
+                }
+            ],
+            "category": "Electric",
+            "type": "part",
+            "score": 0.6065824627876282
+        },
+        {
+            "id": "3006",
+            "name": "Brick 2 x 10",
+            "img_url": "https://storage.googleapis.com/brickognize-static/thumbnails-v2.5.1/part/3006/0.webp",
+            "external_sites": [
+                {
+                    "name": "bricklink",
+                    "url": "https://www.bricklink.com/v2/catalog/catalogitem.page?P=3006"
+                }
+            ],
+            "category": "Brick",
+            "type": "part",
+            "score": 0.6024463176727295
+        }
+    ]
+}
