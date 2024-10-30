@@ -157,7 +157,7 @@ void setup() {
   rightHasItem = false;
 
   // Setup the input pins for the drop button
-//  pinMode(DROP_PIECE_PIN, INPUT);
+  pinMode(DROP_PIECE_PIN, INPUT);
 
   // Setup the input pin for the IR sensor
   pinMode(IR_SENSOR_PIN, INPUT);
