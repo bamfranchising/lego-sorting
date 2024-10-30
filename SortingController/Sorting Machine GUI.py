@@ -47,6 +47,7 @@ servo_D.min()
 
 DROP_PIN = 5
 DROPPER = GPIO.DigitalOutputDevice(DROP_PIN)
+DROPPER.on()
 
 LED_pin = 18
 LED = GPIO.DigitalOutputDevice(LED_pin)
@@ -70,11 +71,8 @@ cam1.start()
 
 
 def dropTest():
-    DROPPER.toggle()
-    if DROPPER.value:
-        print("Signal high")
-    else:
-        print("Signal low")
+    DROPPER.off()
+    DROPPER.on()
 
 def destroy(): 
     LED.close() 
