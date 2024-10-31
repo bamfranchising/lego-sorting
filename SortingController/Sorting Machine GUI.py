@@ -283,6 +283,9 @@ class Sorter:
         )
         
         data0 = json.loads(res0.content)
+
+        if len(data0["items"]) == 0:
+            return
         
         for x in range(min(3, len(data0["items"]))):
             self.pieceId0.append(data0["items"][x]["id"])
@@ -379,11 +382,12 @@ class Sorter:
             if x < len(self.pieceId1):
                 print("  cam1: "+self.pieceId1[x]+" "+self.pieceName1[x]+": {:.2f}% confidence".format(self.pieceScore1[x]))
         
-        print(
-            "R: {}\n".format(self.pieceColor[0]),
-            "G: {}\n".format(self.pieceColor[1]),
-            "B: {}\n".format(self.pieceColor[2])
-        )
+        if len(self.pieceColor):
+            print(
+                "R: {}\n".format(self.pieceColor[0]),
+                "G: {}\n".format(self.pieceColor[1]),
+                "B: {}\n".format(self.pieceColor[2])
+            )
         
         
         endtime = time.time()
