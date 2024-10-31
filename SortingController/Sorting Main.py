@@ -189,7 +189,7 @@ class Sorter:
         self.cam1.close()
 
     def bindLightToggle(self):
-        if not sorter.LED.value: sorter.LED.toggle()
+        if not self.LED.value: self.LED.toggle()
         self.traySwitch.when_pressed = self.scanPart
  
 if __name__ == "__main__":
