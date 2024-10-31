@@ -16,6 +16,16 @@ import time
 import tkinter
 
 class Sorter:
+    def __init__(self) -> None:
+        pass
+
+    #Function to determine where a given piece should be placed.
+    #Data is assumed to be an object of the form of the JSON response
+    #from Brickognize: https://api.brickognize.com/docs#/predict/predict_predict__post
+    def place_piece(self, data)->int:
+        return 0
+
+class SorterDriver:
 
     def __init__(self) -> None:
 
@@ -23,6 +33,8 @@ class Sorter:
         LED_pin = 18
         MOTOR_pin = 21
         TRAY_SWITCH_PIN = 16
+
+        self.sorter = Sorter()
 
         self.app = tkinter.Tk()
         self.app.title("LEGO Sorting Machine")
@@ -274,25 +286,16 @@ class Sorter:
         
         return
     
-    def camCap0(self, img0):
-        
+    def getPrediction(self, img):
         res0 = requests.post(
             self.endpointUrl,
             headers={'accept': 'application/json'},
-            files={'query_image': (img0, open(img0,'rb'), 'image/jpeg')},
+            files={'query_image': (img, open(img,'rb'), 'image/jpeg')},
         )
-        
-        data0 = json.loads(res0.content)
-
-        if len(data0["items"]) == 0:
-            return
-        
-        for x in range(min(3, len(data0["items"]))):
-            self.pieceId0.append(data0["items"][x]["id"])
-            self.pieceName0.append(data0["items"][x]["name"])
-            self.pieceScore0.append(data0["items"][x]["score"]*100)
-            #print("  cam0: "+pieceId0[x]+" "+pieceName0[x]+": {:.2f}% confidence".format(pieceScore0[x]))
+        data = json.loads(res0.content)
+        return data
     
+    def getPieceColor(self, data0, img0):
         start_x = int(data0["bounding_box"]["left"])
         end_x = int(data0["bounding_box"]["right"])
         start_y = int(data0["bounding_box"]["upper"])
@@ -324,26 +327,6 @@ class Sorter:
         self.pieceColor.append(int(rTot/count))
         self.pieceColor.append(int(gTot/count))
         self.pieceColor.append(int(bTot/count))
-    
-        return
-        
-    def camCap1(self, img1):
-
-        res1 = requests.post(
-            self.endpointUrl,
-            headers={'accept': 'application/json'},
-            files={'query_image': (img1, open(img1,'rb'), 'image/jpeg')},
-        )
-        
-        data1 = json.loads(res1.content)
-    
-        for x in range(min(3, len(data1["items"]))):
-            self.pieceId1.append(data1["items"][x]["id"])
-            self.pieceName1.append(data1["items"][x]["name"])
-            self.pieceScore1.append(data1["items"][x]["score"]*100)
-            #print("  cam1: "+pieceId1[x]+" "+pieceName1[x]+": {:.2f}% confidence".format(pieceScore1[x]))
-    
-        return
 
 
     def scanPart(self):
@@ -368,26 +351,28 @@ class Sorter:
         self.cam1.capture_file(img1)
 
         print("Scanning...")
-            
-            
-        self.camCap0(img0)
-        self.camCap1(img1)
+        
+        data0 = self.getPrediction(img0)
+        data1 = self.getPrediction(img1)
+
+        for x in range(3):
+            if x < len(data0["items"]):
+                print("  cam0: "+data0["items"][x]["id"]+" "+data0["items"][x]["name"]+": {:.2f}% confidence".format(data0["items"][x]["score"]*100) + " " + data0["items"][x]["category"])
+            if x < len(data1["items"]):
+                print("  cam0: "+data1["items"][x]["id"]+" "+data1["items"][x]["name"]+": {:.2f}% confidence".format(data1["items"][x]["score"]*100) + " " + data1["items"][x]["category"])
+            #print("  cam1: "+pieceId1[x]+" "+pieceName1[x]+": {:.2f}% confidence".format(pieceScore1[x]))
+
+        # self.getPieceColor(data0, img0)
         
         print("\033[2J\033[H", end="", flush=True)
         print("Results:")
-
-        for x in range(3):
-            if x < len(self.pieceId0):
-                print("  cam0: "+self.pieceId0[x]+" "+self.pieceName0[x]+": {:.2f}% confidence".format(self.pieceScore0[x]))
-            if x < len(self.pieceId1):
-                print("  cam1: "+self.pieceId1[x]+" "+self.pieceName1[x]+": {:.2f}% confidence".format(self.pieceScore1[x]))
         
-        if len(self.pieceColor):
-            print(
-                "R: {}\n".format(self.pieceColor[0]),
-                "G: {}\n".format(self.pieceColor[1]),
-                "B: {}\n".format(self.pieceColor[2])
-            )
+        # if len(self.pieceColor) == 3:
+        #     print(
+        #         "R: {}\n".format(self.pieceColor[0]),
+        #         "G: {}\n".format(self.pieceColor[1]),
+        #         "B: {}\n".format(self.pieceColor[2])
+        #     )
         
         
         endtime = time.time()
@@ -396,10 +381,6 @@ class Sorter:
         print("Process Time = {:.4f} seconds\n".format(endtime-starttime))
         
         return
-    
-    def close(self):
-        self.cam0.close()
-        self.cam1.close()
 
     def bindSwitchScanning(self):
         if not self.LED.value: self.LED.toggle()
@@ -411,10 +392,12 @@ class Sorter:
         self.DROPPER.on()
 
     def destroy(self): 
+        self.cam0.close()
+        self.cam1.close()
+        self.LED.off()
         self.LED.close() 
         self.MOTOR.close()
         self.DROPPER.close()
-        exit()
 
     def toggleLight(self):
         self.LED.toggle() 
@@ -438,8 +421,9 @@ class Sorter:
 
 
 if __name__ == '__main__': # Program entrance
-    sorter = Sorter()
+    sorter = SorterDriver()
     sorter.bindSwitchScanning()
     sorter.app.mainloop()
     
     sorter.destroy()
+    exit()
