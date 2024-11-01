@@ -55,6 +55,9 @@ class SorterDriver:
         MOTOR_pin = 21
         TRAY_SWITCH_PIN = 16
 
+        self.OPEN_ANGLE = 120
+        self.CLOSE_ANGLE = 0
+
         self.sorter = Sorter()
 
         self.app = tkinter.Tk()
@@ -65,10 +68,10 @@ class SorterDriver:
 
         #Initialize servo hat
         self.kit = ServoKit(channels=16)
-        self.kit.servo[3].angle = 0
-        self.kit.servo[2].angle = 0
-        self.kit.servo[1].angle = 0
-        self.kit.servo[0].angle = 0
+        self.kit.servo[3].angle = self.CLOSE_ANGLE
+        self.kit.servo[2].angle = self.CLOSE_ANGLE
+        self.kit.servo[1].angle = self.CLOSE_ANGLE
+        self.kit.servo[0].angle = self.CLOSE_ANGLE
 
         ''' OLD CODE FOR RUNNING SERVOS DIRECTLY FROM GPIO
         gpio_A = 6
@@ -165,7 +168,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        self.Servo_A_button = tkinter.Button(self.app,
+        Servo_A_button = tkinter.Button(self.app,
             text = "Servo A",
             command = lambda: self.toggleServo(0),
             activebackground = "blue",
@@ -188,7 +191,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        self.Servo_B_button = tkinter.Button(self.app,
+        Servo_B_button = tkinter.Button(self.app,
             text = "Servo B",
             command = lambda: self.toggleServo(1),
             activebackground = "blue",
@@ -211,7 +214,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        self.Servo_C_button = tkinter.Button(self.app,
+        Servo_C_button = tkinter.Button(self.app,
             text = "Servo C",
             command = lambda: self.toggleServo(2),
             activebackground = "blue",
@@ -234,7 +237,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
             
-        self.Servo_D_button = tkinter.Button(self.app,
+        Servo_D_button = tkinter.Button(self.app,
             text = "Servo D",
             command = lambda: self.toggleServo(3),
             activebackground = "blue",
@@ -283,13 +286,11 @@ class SorterDriver:
         #CAMERA_button.pack(padx = 20, pady = 20)
         LED_button.pack(padx = 2, pady = 10)
         MOTOR_button.pack(padx = 2, pady = 10)
-        self.Servo_A_button.pack(padx = 2, pady = 10)
-        self.Servo_B_button.pack(padx = 2, pady = 10)
-        self.Servo_C_button.pack(padx = 2, pady = 10)
-        self.Servo_D_button.pack(padx = 2, pady = 10)
+        Servo_A_button.pack(padx = 2, pady = 10)
+        Servo_B_button.pack(padx = 2, pady = 10)
+        Servo_C_button.pack(padx = 2, pady = 10)
+        Servo_D_button.pack(padx = 2, pady = 10)
         DROPPER_button.pack(padx = 2, pady = 10)
-
-        self.servo_buttons = [self.Servo_A_button, self.Servo_B_button, self.Servo_C_button, self.Servo_D_button]
 
         
 
@@ -315,7 +316,9 @@ class SorterDriver:
         for i in range(len(self.servo_queue)):
             val = self.servo_queue[i].pop(0)
             if val == 1:
-                self.servo_buttons[i].invoke()
+                self.kit.servo[i] = self.OPEN_ANGLE
+            else:
+                self.kit.servo[i] = self.CLOSE_ANGLE
 
     def add_to_servo_queue(self, bin_num):
         if bin_num > 3 or bin_num < 0:
@@ -496,9 +499,9 @@ class SorterDriver:
             print("Turn off Motor ... ")
 
     def toggleServo(self, servo_num):
-        self.kit.servo[servo_num].angle = 120
+        self.kit.servo[servo_num].angle = self.OPEN_ANGLE
         time.sleep(1)
-        self.kit.servo[servo_num].angle = 0
+        self.kit.servo[servo_num].angle = self.CLOSE_ANGLE
 
 
 
