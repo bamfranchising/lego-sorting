@@ -316,9 +316,9 @@ class SorterDriver:
         for i in range(len(self.servo_queue)):
             val = self.servo_queue[i].pop(0)
             if val == 1:
-                self.kit.servo[i] = self.OPEN_ANGLE
+                self.kit.servo[i].angle = self.OPEN_ANGLE
             else:
-                self.kit.servo[i] = self.CLOSE_ANGLE
+                self.kit.servo[i].angle = self.CLOSE_ANGLE
 
     def add_to_servo_queue(self, bin_num):
         if bin_num > 3 or bin_num < 0:
