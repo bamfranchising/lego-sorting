@@ -36,16 +36,19 @@ class Sorter:
             return 0
         elif "Plate" in category or "Bracket" in category:
             return 1
-        elif "Minifigure" in category:
+        elif "Minifigure" in category or "Technic" in category or "Wheels" in category:
             return 2
-        elif "Technic" in category or "Wheels" in category:
-            return 3
         else:
-            return 4
+            return 3
 
 class SorterDriver:
 
     def __init__(self) -> None:
+
+        self.servo_queue = [[0,0,0,0,0],
+                            [0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0]]
 
         DROP_PIN = 5
         LED_pin = 18
@@ -162,7 +165,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        Servo_A_button = tkinter.Button(self.app,
+        self.Servo_A_button = tkinter.Button(self.app,
             text = "Servo A",
             command = lambda: self.toggleServo(0),
             activebackground = "blue",
@@ -185,7 +188,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        Servo_B_button = tkinter.Button(self.app,
+        self.Servo_B_button = tkinter.Button(self.app,
             text = "Servo B",
             command = lambda: self.toggleServo(1),
             activebackground = "blue",
@@ -208,7 +211,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
 
-        Servo_C_button = tkinter.Button(self.app,
+        self.Servo_C_button = tkinter.Button(self.app,
             text = "Servo C",
             command = lambda: self.toggleServo(2),
             activebackground = "blue",
@@ -231,7 +234,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
             
-        Servo_D_button = tkinter.Button(self.app,
+        self.Servo_D_button = tkinter.Button(self.app,
             text = "Servo D",
             command = lambda: self.toggleServo(3),
             activebackground = "blue",
@@ -252,7 +255,7 @@ class SorterDriver:
             padx = 10,
             pady = 5,
             width = 15,
-            wraplength = 100)   
+            wraplength = 100)
 
         DROPPER_button = tkinter.Button(self.app,
             text = "Toggle Dropper",
@@ -280,11 +283,13 @@ class SorterDriver:
         #CAMERA_button.pack(padx = 20, pady = 20)
         LED_button.pack(padx = 2, pady = 10)
         MOTOR_button.pack(padx = 2, pady = 10)
-        Servo_A_button.pack(padx = 2, pady = 10)
-        Servo_B_button.pack(padx = 2, pady = 10)
-        Servo_C_button.pack(padx = 2, pady = 10)
-        Servo_D_button.pack(padx = 2, pady = 10)
+        self.Servo_A_button.pack(padx = 2, pady = 10)
+        self.Servo_B_button.pack(padx = 2, pady = 10)
+        self.Servo_C_button.pack(padx = 2, pady = 10)
+        self.Servo_D_button.pack(padx = 2, pady = 10)
         DROPPER_button.pack(padx = 2, pady = 10)
+
+        self.servo_buttons = [self.Servo_A_button, self.Servo_B_button, self.Servo_C_button, self.Servo_D_button]
 
         
 
@@ -303,6 +308,23 @@ class SorterDriver:
         self.LED.toggle()
         
         return
+    
+    # function to progress part trackers, to be called when button tripped
+    def step(self):
+        # for each servo queue, pop off the first item. If it's a 1, trigger that servo
+        for i in range(len(self.servo_queue)):
+            val = self.servo_queue[i].pop(0)
+            if val == 1:
+                self.servo_buttons[i].invoke()
+
+    def add_to_servo_queue(self, bin_num):
+        if bin_num > 3 or bin_num < 0:
+            print("ERROR: bin_num out of range of current system")
+        for i in range(len(self.servo_queue)):
+            if i == bin_num:
+                self.servo_queue[i].append(1)
+            else:
+                self.servo_queue[i].append(0)
     
     def getPrediction(self, img):
         res0 = requests.post(
@@ -385,6 +407,7 @@ class SorterDriver:
     def scanPart(self):
 
         self.dropTest()
+        self.step()
         
         self.pieceId0.clear()
         self.pieceId1.clear()
@@ -433,6 +456,7 @@ class SorterDriver:
         
         bin_num = self.sorter.place_piece(data)
         print("Item to go in bin number " + str(bin_num))
+        self.add_to_servo_queue(bin_num)
         endtime = time.time()
         
         #print("Imaging Time = {:.4f} seconds".format(picEnd-starttime))
