@@ -372,7 +372,7 @@ class SorterDriver:
             # if we've seen the id before
             if id in ids_in_data:
                 # add our weighted score to the other one
-                data["items"][index[id]] += data1["items"][i]["score"]
+                data["items"][index[id]]["score"] += data1["items"][i]["score"]
             else:
                 # haven't seen it, so add it to the list (with the weighted score)
                 data["items"].append(data1["items"][i])
