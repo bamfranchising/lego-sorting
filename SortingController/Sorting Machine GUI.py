@@ -14,6 +14,7 @@ import subprocess
 from sys import exit
 import time
 import tkinter
+from copy import deepcopy
 
 class Sorter:
     def __init__(self) -> None:
@@ -23,7 +24,24 @@ class Sorter:
     #Data is assumed to be an object of the form of the JSON response
     #from Brickognize: https://api.brickognize.com/docs#/predict/predict_predict__post
     def place_piece(self, data)->int:
-        return 0
+
+        category = ""
+        if len(data["items"]) > 0:
+            category = data["items"][0]["category"]
+        else:
+            return 4
+        # potential categories: Brick, Plate, Bracket, Minifigure, Technic, Wheel
+        # For the 5 sections we have now, we divide into Bricks, Plates (including brackets), Minifigure, Technic and Wheels, and Other
+        if "Brick" in category:
+            return 0
+        elif "Plate" in category or "Bracket" in category:
+            return 1
+        elif "Minifigure" in category:
+            return 2
+        elif "Technic" in category or "Wheels" in category:
+            return 3
+        else:
+            return 4
 
 class SorterDriver:
 
@@ -292,7 +310,7 @@ class SorterDriver:
             headers={'accept': 'application/json'},
             files={'query_image': (img, open(img,'rb'), 'image/jpeg')},
         )
-        print(res0.content)
+        # print(res0.content)
         data = json.loads(res0.content)
         return data
     
@@ -329,6 +347,40 @@ class SorterDriver:
         self.pieceColor.append(int(gTot/count))
         self.pieceColor.append(int(bTot/count))
 
+    # function to combine the probabilities from each of the data sets. Returns the combined probabilities
+    def combine_probabilities(self, data0, data1):
+        # deep copy the items from data0 as the basis for the combined data
+        data = deepcopy(data0)
+        # perform a 50/50 weighted average of the score of the items
+
+        # go through the data0 collection and keep track of the IDs we encounter and their positions in the list
+        ids_in_data = set()
+        index = {}
+        for i in range(len(data["items"])):
+            # weight the score
+            data["items"][i]["score"] *= 0.5
+            # add the id to the set of IDs we've seen
+            ids_in_data.add(data["items"][i]["id"])
+            # add the (id, index) pair to a dictionary for later use
+            index[data["items"][i]["id"]] = i
+        
+        # iterate through the second list of items
+        for i in range(len(data1["items"])):
+            id = data1["items"][i]["id"]
+            # weight the score of the item
+            data1["items"][i]["score"] *= 0.5
+            # if we've seen the id before
+            if id in ids_in_data:
+                # add our weighted score to the other one
+                data["items"][index[id]] += data1["items"][i]["score"]
+            else:
+                # haven't seen it, so add it to the list (with the weighted score)
+                data["items"].append(data1["items"][i])
+
+        # sort the list of items by their combined score
+        data["items"].sort(key=lambda x: x["score"], reverse=True)
+        return data
+
 
     def scanPart(self):
 
@@ -359,13 +411,17 @@ class SorterDriver:
         print("\033[2J\033[H", end="", flush=True)
         print("Results:")
 
-        for x in range(3):
+        for x in range(max(len(data0["items"]), len(data1["items"]))):
             if x < len(data0["items"]):
                 print("  cam0: "+data0["items"][x]["id"]+" "+data0["items"][x]["name"]+": {:.2f}% confidence".format(data0["items"][x]["score"]*100) + " " + data0["items"][x]["category"])
             if x < len(data1["items"]):
                 print("  cam1: "+data1["items"][x]["id"]+" "+data1["items"][x]["name"]+": {:.2f}% confidence".format(data1["items"][x]["score"]*100) + " " + data1["items"][x]["category"])
             #print("  cam1: "+pieceId1[x]+" "+pieceName1[x]+": {:.2f}% confidence".format(pieceScore1[x]))
 
+        data = self.combine_probabilities(data0, data1)
+        print("Combined Results:")
+        for i in range(len(data["items"])):
+            print("  "+data["items"][i]["id"]+" "+data["items"][i]["name"]+": {:.2f}% confidence".format(data["items"][i]["score"]*100) + " " + data["items"][i]["category"])
         # self.getPieceColor(data0, img0)
         
         # if len(self.pieceColor) == 3:
@@ -375,7 +431,8 @@ class SorterDriver:
         #         "B: {}\n".format(self.pieceColor[2])
         #     )
         
-        
+        bin_num = self.sorter.place_piece(data)
+        print("Item to go in bin number " + str(bin_num))
         endtime = time.time()
         
         #print("Imaging Time = {:.4f} seconds".format(picEnd-starttime))
