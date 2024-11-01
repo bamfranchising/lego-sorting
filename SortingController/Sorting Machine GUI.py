@@ -292,6 +292,7 @@ class SorterDriver:
             headers={'accept': 'application/json'},
             files={'query_image': (img, open(img,'rb'), 'image/jpeg')},
         )
+        print(res0.content)
         data = json.loads(res0.content)
         return data
     
@@ -359,7 +360,7 @@ class SorterDriver:
             if x < len(data0["items"]):
                 print("  cam0: "+data0["items"][x]["id"]+" "+data0["items"][x]["name"]+": {:.2f}% confidence".format(data0["items"][x]["score"]*100) + " " + data0["items"][x]["category"])
             if x < len(data1["items"]):
-                print("  cam0: "+data1["items"][x]["id"]+" "+data1["items"][x]["name"]+": {:.2f}% confidence".format(data1["items"][x]["score"]*100) + " " + data1["items"][x]["category"])
+                print("  cam1: "+data1["items"][x]["id"]+" "+data1["items"][x]["name"]+": {:.2f}% confidence".format(data1["items"][x]["score"]*100) + " " + data1["items"][x]["category"])
             #print("  cam1: "+pieceId1[x]+" "+pieceName1[x]+": {:.2f}% confidence".format(pieceScore1[x]))
 
         # self.getPieceColor(data0, img0)
