@@ -355,6 +355,9 @@ class SorterDriver:
         
         data0 = self.getPrediction(img0)
         data1 = self.getPrediction(img1)
+        
+        print("\033[2J\033[H", end="", flush=True)
+        print("Results:")
 
         for x in range(3):
             if x < len(data0["items"]):
@@ -364,9 +367,6 @@ class SorterDriver:
             #print("  cam1: "+pieceId1[x]+" "+pieceName1[x]+": {:.2f}% confidence".format(pieceScore1[x]))
 
         # self.getPieceColor(data0, img0)
-        
-        print("\033[2J\033[H", end="", flush=True)
-        print("Results:")
         
         # if len(self.pieceColor) == 3:
         #     print(
