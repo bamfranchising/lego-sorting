@@ -37,6 +37,9 @@ bool rightHasItem;
 // bool to track if we're waiting to reactiveate the IR sensor
 volatile bool bouncing = false;
 
+// bool to track if we're waiting to reactivate the drop pin
+volatile bool drop_bouncing = false;
+
 // bool to track if vibration is on
 volatile bool v_on = true;
 
@@ -94,6 +97,11 @@ bool closeGate(Servo gate) {
 // or a timer calls it
 void dropItem() {
 //  Serial.println("Dropping item...");
+
+  if (drop_bouncing) return;
+  drop_bouncing = true;
+  
+  timer.in(500, [](void*) -> bool {drop_bouncing = false; return false;});
 
   // if both bins are occupied or neither bin is occupied, drop items out of the one where the flipper is pointing
   if ((leftHasItem && rightHasItem) || (!leftHasItem && !rightHasItem)) {
