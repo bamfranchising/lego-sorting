@@ -66,7 +66,7 @@ void loop() {
   if (SerialReader.hasMessage()) {  // if a whole message has been received from Serial,
     int servoNum = atoi(SerialReader.getMessage()); // convert the message to an int (assume it's the number of a servo to move)
     
-    short waitTime = 0;//(servoNum/2) * WINDOW_TRAVEL_TIME - PRESWING; // calculate the amount of time the arm has to wait to swing
+    short waitTime = (servoNum/2) * WINDOW_TRAVEL_TIME - PRESWING + INITIAL_WAIT; // calculate the amount of time the arm has to wait to swing
     if (waitTime <= 0) { // If the wait time is negative
       cycleArm(servoNum); // cycle the given servo number right away
     }

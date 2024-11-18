@@ -13,6 +13,7 @@
 #define ARM_LENGTH 28           // Distance between each arm in cm
 #define WINDOW_TRAVEL_TIME ((int)ARM_LENGTH*1000/BELT_SPEED)  // Amount of time it takes for a piece to travel the length of a segment in ms
 #define PRESWING 100            // Arms swing out early by this amount in ms
+#define INITIAL_WAIT ((int)20 * 1000/BELT_SPEED)
 
 // There are two different sides the servos are on. We assume the perspective of looking down the conveyor belt
 // in the direction it is moving. Thus, the servos on the right must swing clockwise (as viewed from above) to
