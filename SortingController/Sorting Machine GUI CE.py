@@ -44,8 +44,8 @@ class SorterDriver:
                             [0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0]]
         
-        stager_com_port = "/dev/serial"
-        conveyor_com_port = "/dev/serial0"
+        stager_com_port = "/dev/ttyACM0"
+        conveyor_com_port = "/dev/ttyUSB0"
 
         self.stager_serial = serial.Serial(stager_com_port, 115200)
         self.conveyor_serial = serial.Serial(conveyor_com_port, 115200)
@@ -347,6 +347,8 @@ class SorterDriver:
     def destroy(self): 
         self.cam0.close()
         self.cam1.close()
+        self.stager_serial.close()
+        self.conveyor_serial.close()
 
     # def toggleLight(self):
     #     self.LED.toggle() 
