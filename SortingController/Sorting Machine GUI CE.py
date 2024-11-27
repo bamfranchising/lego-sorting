@@ -44,6 +44,9 @@ class SorterDriver:
                             [0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0]]
         
+        self.DELAY_BETWEEN_DISPENSE_AND_SCAN = 500
+        self.DELAY_BETWEEN_DROP_AND_DISPENSE = 1000
+        
         stager_com_port = "/dev/ttyACM0"
         conveyor_com_port = "/dev/ttyUSB0"
 
@@ -194,7 +197,7 @@ class SorterDriver:
     def startScanning(self):
         if not self.scanning:
             self.dispensePart()
-            self.app.after(1000, sorter.scanPart)
+            self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, sorter.scanPart)
             self.scanning = True
     def stopScanning(self):
         self.scanning = False
@@ -335,6 +338,8 @@ class SorterDriver:
         print("Item to go in bin number " + str(bin_num))
         self.partToBin(bin_num)
         endtime = time.time()
+
+        time.sleep(self.DELAY_BETWEEN_DROP_AND_DISPENSE/1000)
         
         #print("Imaging Time = {:.4f} seconds".format(picEnd-starttime))
         print("Process Time = {:.4f} seconds\n".format(endtime-starttime))
