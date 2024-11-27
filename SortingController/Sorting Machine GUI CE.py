@@ -333,7 +333,7 @@ class SorterDriver:
         
         bin_num = self.sorter.place_piece(data)
         print("Item to go in bin number " + str(bin_num))
-        self.add_to_servo_queue(bin_num)
+        self.partToBin(bin_num)
         endtime = time.time()
         
         #print("Imaging Time = {:.4f} seconds".format(picEnd-starttime))
