@@ -1,15 +1,17 @@
 #include <Servo.h>
 #include <arduino-timer.h>
 
+#include "SerialReader.h"
+
 
 
 // Define the angles of the left and right positions of the flipper servo
-#define FLIPPER_LEFT 50
-#define FLIPPER_RIGHT 130
+#define FLIPPER_LEFT 45
+#define FLIPPER_RIGHT 125
 
 // Define the open and closed angles of the gate servos
 #define GATE_OPEN 180
-#define GATE_CLOSE 105
+#define GATE_CLOSE 100
 
 // Define the pins of the servos
 #define FLIPPER_PIN 9
@@ -21,7 +23,6 @@
 
 // Define pin of the IR sensor
 #define IR_SENSOR_PIN 5
-#define IR_SENSOR_PIN2 7
 
 // Define pin for turning off vibration
 #define V_PIN 36
@@ -168,12 +169,7 @@ void setup() {
   pinMode(DROP_PIECE_PIN, INPUT);
 
   // Setup the input pin for the IR sensor
-  pinMode(IR_SENSOR_PIN, INPUT);
-  digitalWrite(IR_SENSOR_PIN, HIGH); // turns on the pullup resistor; this pin will read LOW when the beam is broken
-
-  // Setup the other IR sensor
-  pinMode(IR_SENSOR_PIN2, INPUT);
-  digitalWrite(IR_SENSOR_PIN2, HIGH);
+  pinMode(IR_SENSOR_PIN, INPUT_PULLUP); //this pin will read LOW when the beam is broken
 
   // Setup v_pin
   pinMode(V_PIN, OUTPUT);
@@ -181,10 +177,9 @@ void setup() {
 
   // setup interrupt so IR beam break calls function
   attachInterrupt(digitalPinToInterrupt(IR_SENSOR_PIN), beamBreak, FALLING);
-  attachInterrupt(digitalPinToInterrupt(IR_SENSOR_PIN2), beamBreak, FALLING);
 
   // setup interrupt so we drop piece when the drop button is pressed
-  attachInterrupt(digitalPinToInterrupt(DROP_PIECE_PIN), dropItem, RISING);
+  // attachInterrupt(digitalPinToInterrupt(DROP_PIECE_PIN), dropItem, RISING);
 
   // request to drop piece every 1.5 seconds
 //  timer.every(1500, [](void*)->bool {dropItem(); return true;});
@@ -193,4 +188,11 @@ void setup() {
 void loop() {
   timer.tick();
   closetimer.tick();
+  
+  // Process any characters received
+  SerialReader.getMessage();
+  // Checks if we've received a message over serial (any string ending in '\n'). If we have, drop an item.
+  if (SerialReader.hasMessage()) {
+    dropItem();
+  }
 }
