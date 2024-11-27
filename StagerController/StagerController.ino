@@ -2,38 +2,11 @@
 #include <arduino-timer.h>
 
 #include "SerialReader.h"
-
-
-
-// Define the angles of the left and right positions of the flipper servo
-#define FLIPPER_LEFT 45
-#define FLIPPER_RIGHT 125
-
-// Define the open and closed angles of the gate servos
-#define GATE_OPEN 180
-#define GATE_CLOSE 100
-
-// Define the pins of the servos
-#define FLIPPER_PIN 9
-#define LEFT_GATE_PIN 10
-#define RIGHT_GATE_PIN 11
-
-// Define the pins of the drop triggering button
-#define DROP_PIECE_PIN 3
-
-// Define pin of the IR sensor
-#define IR_SENSOR_PIN 5
-
-// Define pin for turning off vibration
-#define V_PIN 36
+#include "Config.h"
 
 // Define variables for the various servos and states
 Servo flipper;
 bool flipperLeft;
-Servo gateLeft;
-bool leftHasItem;
-Servo gateRight;
-bool rightHasItem;
 
 // bool to track if we're waiting to reactiveate the IR sensor
 volatile bool bouncing = false;
@@ -46,7 +19,12 @@ volatile bool v_on = true;
 
 // create timer to handle waiting while not blocking
 auto timer = timer_create_default();
-Timer<2, millis, Servo> closetimer;
+Timer<2, millis, byte> closetimer;
+
+Servo gates[2];
+const int8_t offsets[] = {LEFT_OFFSET, RIGHT_OFFSET};
+const byte gate_pins[] = {LEFT_GATE_PIN, RIGHT_GATE_PIN};
+bool hasItem[] = {false, false};
 
 void turnVibrationOff() {
   v_on = false;
@@ -61,66 +39,65 @@ void turnVibrationOn() {
 
 void receiveItem() {
   // if both bins are occupied, drop the piece in the current bin
-  if(rightHasItem && leftHasItem) {
+  if(hasItem[0] && hasItem[1]) {
     Serial.println("Both bins occupied, dumping extra piece in current bin");
     return;
   }
   // One bin is free, assume it's the one we're currently dumping pieces into
   if (flipperLeft) {
-    leftHasItem = true;
+    hasItem[0] = true;
     flipper.write(FLIPPER_RIGHT);
     Serial.println("Left bin now has item");
   }
   else {
-    rightHasItem = true;
+    hasItem[1] = true;
     timer.in(100, [](void*)->bool { flipper.write(FLIPPER_LEFT); return false;});
     Serial.println("Right bin now has item");
   }
   flipperLeft = !flipperLeft;
-  if (rightHasItem && leftHasItem) {
+  if (hasItem[0] && hasItem[1]) {
     // turn off vibration
     turnVibrationOff();
   }
 }
 
-void openGate(Servo gate, bool& hasItem) {
-  gate.write(GATE_OPEN);
-  hasItem = false;
-  closetimer.in(500, closeGate, gate);
+void openGate(byte gateNum) {
+  gates[gateNum].write(GATE_OPEN+offsets[gateNum]);
+  hasItem[gateNum] = false;
+  closetimer.in(500, closeGate, gateNum);
 }
 
-bool closeGate(Servo gate) {
-  gate.write(GATE_CLOSE);
+bool closeGate(byte gateNum) {
+  gates[gateNum].write(GATE_CLOSE+offsets[gateNum]);
   return false;
 }
 
 // function called when the DROP_PIECE_PIN goes high
 // or a timer calls it
 void dropItem() {
-//  Serial.println("Dropping item...");
-
   if (drop_bouncing) return;
   drop_bouncing = true;
   
   timer.in(500, [](void*) -> bool {drop_bouncing = false; return false;});
+  // Serial.println("Dropping item...");
 
   // if both bins are occupied or neither bin is occupied, drop items out of the one where the flipper is pointing
-  if ((leftHasItem && rightHasItem) || (!leftHasItem && !rightHasItem)) {
+  if ((hasItem[0] && hasItem[1]) || (!hasItem[0] && !hasItem[1])) {
     if (flipperLeft) { // flipper is pointing to the left, so open the left gate
-      openGate(gateLeft, leftHasItem);
+      openGate(0);
     }
     else { // flipper is poing to the right, open the right gate
-      openGate(gateRight, rightHasItem);
+      openGate(1);
     }
   }
   // otherwise one bin has an item and we should open that bin
   else{
-    if (leftHasItem) {
-      openGate(gateLeft, leftHasItem);
+    if (hasItem[0]) {
+      openGate(0);
 //      Serial.println("Item dropped from left bin");
     }
     else {
-      openGate(gateRight, rightHasItem);
+      openGate(1);
 //      Serial.println("Item dropped from right bin");
     }
   }
@@ -152,18 +129,15 @@ void setup() {
   Serial.begin(115200);
   // Attach the servos on the various pins
   flipper.attach(FLIPPER_PIN);  
-  gateLeft.attach(LEFT_GATE_PIN);
-  gateRight.attach(RIGHT_GATE_PIN);
 
   // Put the flipper servo and state into a starting configuration
   flipper.write(FLIPPER_LEFT);
   flipperLeft = true;
 
-  // Start both bins closed and empty
-  gateLeft.write(GATE_CLOSE);
-  gateRight.write(GATE_CLOSE);
-  leftHasItem = false;
-  rightHasItem = false;
+  for (byte i = 0; i < 2; i++) {
+    gates[i].attach(gate_pins[i]);
+    gates[i].write(GATE_CLOSE+offsets[i]);
+  }
 
   // Setup the input pins for the drop button
   pinMode(DROP_PIECE_PIN, INPUT);
@@ -190,9 +164,10 @@ void loop() {
   closetimer.tick();
   
   // Process any characters received
-  SerialReader.getMessage();
+  SerialReader.receiveData();
   // Checks if we've received a message over serial (any string ending in '\n'). If we have, drop an item.
   if (SerialReader.hasMessage()) {
+    SerialReader.clearMessage();
     dropItem();
   }
 }
