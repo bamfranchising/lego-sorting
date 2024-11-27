@@ -5,8 +5,10 @@
 #include "Config.h"
 
 Servo servos[numServos];
+Servo dropper;
 
 Timer<20, millis, byte> timer; // Timer to allow for scheduling of tasks in non-blocking manner (see arduino-timer library)
+auto dropper_timer = timer_create_default();
 
 void setup() {
   Serial.begin(115200); // Initialize the serial connection with a baud rate of 115200
@@ -17,6 +19,9 @@ void setup() {
     servos[i].write(closedAngles[i%2] + armClosedAngleOffset[i]); // move the arm to the closed position
     timer.in(SERVO_TRAVEL_TIME, killServo, i);                  // set task to kill the servo once it arrives in the correct position
   }
+
+  dropper.attach(DROPPER_PIN);
+  dropper.write(DROPPER_CLOSED);
 }
 
 // Function to open and then close a given flipper. Assumes the
@@ -60,11 +65,24 @@ bool killServo(byte servoNum) {
   return false;
 }
 
+void openDropper() {
+  dropper.write(DROPPER_OPEN);
+}
+
+bool closeDropper() {
+  dropper.write(DROPPER_CLOSED);
+  return false;
+}
+
 void loop() {
   timer.tick(); // must be called to ensure proper function of timer
+  dropper_timer.tick();
   SerialReader.receiveData();  // Looks for data from Serial
   if (SerialReader.hasMessage()) {  // if a whole message has been received from Serial,
     int servoNum = atoi(SerialReader.getMessage()); // convert the message to an int (assume it's the number of a servo to move)
+
+    openDropper();
+    dropper_timer.in(500, [](void*) ->bool {closeDropper(); return false;});
     
     short waitTime = (servoNum/2) * WINDOW_TRAVEL_TIME - PRESWING + INITIAL_WAIT; // calculate the amount of time the arm has to wait to swing
     if (waitTime <= 0) { // If the wait time is negative

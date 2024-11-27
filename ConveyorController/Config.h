@@ -15,6 +15,10 @@
 #define PRESWING 100            // Arms swing out early by this amount in ms
 #define INITIAL_WAIT ((int)19 * 1000/BELT_SPEED)
 
+#define DROPPER_PIN 12
+#define DROPPER_CLOSED 0
+#define DROPPER_OPEN 50
+
 // There are two different sides the servos are on. We assume the perspective of looking down the conveyor belt
 // in the direction it is moving. Thus, the servos on the right must swing clockwise (as viewed from above) to
 // move across the belt, with the servos on the left moving counterclockwise.
