@@ -83,6 +83,8 @@ void loop() {
 
     openDropper();
     dropper_timer.in(500, [](void*) ->bool {closeDropper(); return false;});
+
+    if (servoNum < 0 || servoNum >= numServos) return; // if the number is not in the range of bins, skip the item
     
     short waitTime = (servoNum/2) * WINDOW_TRAVEL_TIME - PRESWING + INITIAL_WAIT; // calculate the amount of time the arm has to wait to swing
     if (waitTime <= 0) { // If the wait time is negative
