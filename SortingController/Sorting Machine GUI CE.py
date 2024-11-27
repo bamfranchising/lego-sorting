@@ -23,7 +23,7 @@ class Sorter:
         if len(data["items"]) > 0:
             category = data["items"][0]["category"]
         else:
-            return 4
+            return -1
         # potential categories: Brick, Plate, Bracket, Minifigure, Technic, Wheel
         # For the 5 sections we have now, we divide into Bricks, Plates (including brackets), Minifigure, Technic and Wheels, and Other
         if "Brick" in category:
