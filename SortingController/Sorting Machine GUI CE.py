@@ -101,7 +101,7 @@ class SorterDriver:
         self.pieceColor = []
 
         StartScanningButton = tkinter.Button(self.app,
-            text = "Toggle Scanning",
+            text = "Start Scanning",
             command = self.startScanning,
             activebackground = "blue",
             activeforeground = "white",
@@ -123,7 +123,7 @@ class SorterDriver:
             width = 15,
             wraplength = 100)
         StopScanningButton = tkinter.Button(self.app,
-            text = "Toggle Scanning",
+            text = "Stop Scanning",
             command = self.stopScanning,
             activebackground = "blue",
             activeforeground = "white",
@@ -277,7 +277,7 @@ class SorterDriver:
         return data
 
     def partToBin(self, binNum):
-        message = "" + binNum + "\n"
+        message = "" + str(binNum) + "\n"
         self.conveyor_serial.write(message.encode())
     
     def dispensePart(self):
