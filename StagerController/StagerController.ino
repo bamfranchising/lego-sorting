@@ -40,19 +40,19 @@ void turnVibrationOn() {
 void receiveItem() {
   // if both bins are occupied, drop the piece in the current bin
   if(hasItem[0] && hasItem[1]) {
-    Serial.println("Both bins occupied, dumping extra piece in current bin");
+    // Serial.println("Both bins occupied, dumping extra piece in current bin");
     return;
   }
   // One bin is free, assume it's the one we're currently dumping pieces into
   if (flipperLeft) {
     hasItem[0] = true;
     flipper.write(FLIPPER_RIGHT);
-    Serial.println("Left bin now has item");
+    // Serial.println("Left bin now has item");
   }
   else {
     hasItem[1] = true;
     timer.in(100, [](void*)->bool { flipper.write(FLIPPER_LEFT); return false;});
-    Serial.println("Right bin now has item");
+    // Serial.println("Right bin now has item");
   }
   flipperLeft = !flipperLeft;
   if (hasItem[0] && hasItem[1]) {
@@ -114,7 +114,7 @@ void dropItem() {
 void beamBreak() {
   // check if the beam was broken recently
   if (!bouncing) {
-    Serial.println("Receiving item...");
+    // Serial.println("Receiving item...");
     receiveItem();
 
     // tell everyone the beam was broken recently
@@ -165,9 +165,19 @@ void loop() {
   
   // Process any characters received
   SerialReader.receiveData();
-  // Checks if we've received a message over serial (any string ending in '\n'). If we have, drop an item.
+  // Checks if we've received a message over serial (any string ending in '\n'). If we have, check which code we got.
   if (SerialReader.hasMessage()) {
-    SerialReader.clearMessage();
-    dropItem();
+    char* message = SerialReader.getMessage();
+    if (strcmp(message,"h") == 0) {
+      if (hasItem[0] || hasItem[1]) {
+        Serial.print("y\n");
+      }
+      else {
+        Serial.print("n\n");
+      }
+    }
+    else if (strcmp(message, "d") == 0) {
+      dropItem();
+    }
   }
 }

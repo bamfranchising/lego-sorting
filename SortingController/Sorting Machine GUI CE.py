@@ -50,7 +50,7 @@ class SorterDriver:
         stager_com_port = "/dev/ttyACM0"
         conveyor_com_port = "/dev/ttyUSB0"
 
-        self.stager_serial = serial.Serial(stager_com_port, 115200)
+        self.stager_serial = serial.Serial(stager_com_port, 115200, timeout=3)
         self.conveyor_serial = serial.Serial(conveyor_com_port, 115200)
 
         self.scanning = False
@@ -196,9 +196,10 @@ class SorterDriver:
 
     def startScanning(self):
         if not self.scanning:
-            self.dispensePart()
-            self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, sorter.scanPart)
             self.scanning = True
+            self.tryDispensePart()
+            self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, sorter.scanPart)
+
     def stopScanning(self):
         self.scanning = False
     
@@ -280,14 +281,26 @@ class SorterDriver:
         return data
 
     def partToBin(self, binNum):
-        message = "" + str(binNum) + "\n"
+        message = str(binNum) + "\n"
         self.conveyor_serial.write(message.encode())
     
-    def dispensePart(self):
-        self.stager_serial.write(b'\n')
+    def tryDispensePart(self):
+        self.stager_serial.write(b'h\n')
+        read = self.stager_serial.readline()
+        readstr = read.decode("utf-8")
+        
+        if (readstr == "y\n"):
+            self.stager_serial.write(b'd\n')
+            return True
+        else:
+            return False
 
     def scanPart(self):
-        if not self.scanning: return
+        while not self.tryDispensePart():
+            time.sleep(.5)
+            if not self.scanning: return
+        
+        time.sleep(self.DELAY_BETWEEN_DISPENSE_AND_SCAN/1000)
         
         self.pieceId0.clear()
         self.pieceId1.clear()
@@ -338,16 +351,12 @@ class SorterDriver:
         print("Item to go in bin number " + str(bin_num))
         self.partToBin(bin_num)
         endtime = time.time()
-
-        time.sleep(self.DELAY_BETWEEN_DROP_AND_DISPENSE/1000)
         
         #print("Imaging Time = {:.4f} seconds".format(picEnd-starttime))
         print("Process Time = {:.4f} seconds\n".format(endtime-starttime))
 
         if self.scanning:
-            self.dispensePart()
-            
-            self.app.after(1000, self.scanPart)
+            self.app.after(self.DELAY_BETWEEN_DROP_AND_DISPENSE, self.scanPart)
 
     def destroy(self): 
         self.cam0.close()
