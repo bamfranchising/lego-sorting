@@ -46,6 +46,7 @@ class SorterDriver:
         
         self.DELAY_BETWEEN_DISPENSE_AND_SCAN = 500
         self.DELAY_BETWEEN_DROP_AND_DISPENSE = 1000
+        self.NO_PART_TIMEOUT = 500
         
         stager_com_port = "/dev/ttyACM0"
         conveyor_com_port = "/dev/ttyUSB0"
@@ -197,7 +198,7 @@ class SorterDriver:
     def startScanning(self):
         if not self.scanning:
             self.scanning = True
-            self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, sorter.scanPart)
+            self.getPart()
 
     def stopScanning(self):
         self.scanning = False
@@ -293,14 +294,15 @@ class SorterDriver:
             return True
         else:
             return False
+        
+    def getPart(self):
+        if self.tryDispensePart():
+            self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, self.scanPart)
+        elif self.scanning:
+            self.app.after(self.NO_PART_TIMEOUT, self.getPart)
 
-    def scanPart(self):
-        while not self.tryDispensePart():
-            time.sleep(.5)
-            if not self.scanning: return
-        
-        time.sleep(self.DELAY_BETWEEN_DISPENSE_AND_SCAN/1000)
-        
+
+    def scanPart(self):        
         self.pieceId0.clear()
         self.pieceId1.clear()
         self.pieceScore0.clear()
@@ -355,7 +357,7 @@ class SorterDriver:
         print("Process Time = {:.4f} seconds\n".format(endtime-starttime))
 
         if self.scanning:
-            self.app.after(self.DELAY_BETWEEN_DROP_AND_DISPENSE, self.scanPart)
+            self.app.after(self.DELAY_BETWEEN_DROP_AND_DISPENSE, self.getPart)
 
     def destroy(self): 
         self.cam0.close()
