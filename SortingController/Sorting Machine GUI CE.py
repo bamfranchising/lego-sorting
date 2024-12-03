@@ -197,7 +197,6 @@ class SorterDriver:
     def startScanning(self):
         if not self.scanning:
             self.scanning = True
-            self.tryDispensePart()
             self.app.after(self.DELAY_BETWEEN_DISPENSE_AND_SCAN, sorter.scanPart)
 
     def stopScanning(self):
